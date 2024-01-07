@@ -1,0 +1,53 @@
+Certainly! You can adjust the voice characteristics using pyttsx3. Here's how you can modify the code to give Jarvis a more suitable voice:
+
+```python
+import openai
+import speech_recognition as sr
+import pyttsx3
+
+# Initialize the OpenAI API key
+openai.api_key = 'YOUR_OPENAI_API_KEY'
+
+# Initialize the text-to-speech engine
+engine = pyttsx3.init()
+
+# Set Jarvis's voice properties
+voice = engine.getProperty('voices')[1]  # Adjust the index for the desired voice
+engine.setProperty('voice', voice.id)
+engine.setProperty('rate', 150)  # Adjust the speaking rate (words per minute)
+engine.setProperty('volume', 1.0)  # Adjust the volume (0.0 to 1.0)
+
+# Function to speak
+def speak(text):
+    engine.say(text)
+    engine.runAndWait()
+
+# Function to recognize speech
+def listen():
+    recognizer = sr.Recognizer()
+
+    with sr.Microphone() as source:
+        print("Listening...")
+        recognizer.adjust_for_ambient_noise(source)
+        audio = recognizer.listen(source)
+
+        try:
+            print("Recognizing...")
+            text = recognizer.recognize_google(audio)
+            print("You said:", text)
+            return text
+        except sr.UnknownValueError:
+            print("Sorry, I couldn't understand that.")
+            return ""
+        except sr.RequestError as e:
+            print(f"Could not request results from Google Speech Recognition service; {e}")
+            return ""
+
+# Function to interact with ChatGPT
+def chat_with_gpt(prompt):
+    response = openai.Completion.create(
+        engine="text-davinci-003",
+        prompt=prompt,
+        max_tokens=150
+    )
+    return response.choices[
